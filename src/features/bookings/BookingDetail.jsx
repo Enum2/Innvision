@@ -12,6 +12,10 @@ import { useBookings } from "./useBookings";
 import { HiArrowDownCircle, HiArrowUpOnSquare } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useCheckout } from "../check-in-out/useCheckout";
+import Modal from "../../ui/Modal";
+import ConfirmDelete from "../../ui/ConfirmDelete";
+import { deleteBooking } from "../../services/apiBookings";
+import toast from "react-hot-toast";
 
 const HeadingGroup = styled.div`
   display: flex;
@@ -36,6 +40,7 @@ function BookingDetail() {
   }
 
   const { status = "unconfirmed", id: bookingId } = booking;
+  console.log(booking);
 
   const statusToTagName = {
     unconfirmed: "blue",
@@ -43,8 +48,18 @@ function BookingDetail() {
     "checked-out": "silver",
   };
 
+  const handleDelete = async () => {
+    try {
+      await deleteBooking({ bookingId });
+      toast.success("Booking deleted successfully");
+      navigate(-1); // Navigate back after successful deletion
+    } catch (err) {
+      console.error("Failed to delete booking:", err);
+    }
+  };
+
   return (
-    <>
+    <Modal>
       <Row type="horizontal">
         <HeadingGroup>
           <Heading as="h1">Booking #{bookingId}</Heading>
@@ -73,11 +88,21 @@ function BookingDetail() {
             Check out
           </Button>
         )}
+
+        {/* Modal for Delete Confirmation */}
+        <Modal.Open opens="delete">
+          <Button variation="danger">Delete</Button>
+        </Modal.Open>
+
+        <Modal.Window name="delete">
+          <ConfirmDelete resourceName="booking" onConfirm={handleDelete} />
+        </Modal.Window>
+
         <Button variation="secondary" onClick={moveBack}>
           Back
         </Button>
       </ButtonGroup>
-    </>
+    </Modal>
   );
 }
 
