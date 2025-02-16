@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import supabase from "./supabase";
 
 export async function login({ email, password }) {
@@ -27,4 +28,11 @@ export async function getCurrentUser() {
     throw new Error("An error occurred while getting the user.");
   }
   return data?.user;
+}
+
+export async function logout() {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    toast.error("there was an error in sign out");
+  }
 }
